@@ -4,6 +4,7 @@ import '../models/gasto.dart';
 import '../models/categoria.dart';
 import '../services/local_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart'; // Nueva importación
 import 'home_page.dart';
 
 class GastosPage extends StatefulWidget {
@@ -22,6 +23,9 @@ class _GastosPageState extends State<GastosPage> {
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting(
+      'es_ES',
+    ); // Inicializa formatos de fecha en español
     _cargarTodo();
   }
 
@@ -46,128 +50,149 @@ class _GastosPageState extends State<GastosPage> {
         fecha1.day == fecha2.day;
   }
 
-void _mostrarModal({Gasto? gasto}) {
-  final descripcionController = TextEditingController(
-    text: gasto != null ? gasto.descripcion : '',
-  );
-  final montoController = TextEditingController(
-    text: gasto != null ? gasto.monto.toString() : '',
-  );
-  int? selectedCategoriaId =
-      gasto?.categoriaId ?? _categorias.firstOrDefault()?.id;
-  DateTime? selectedDateLocal = gasto?.fecha ?? selectedDate;
+  void _mostrarModal({Gasto? gasto}) {
+    final descripcionController = TextEditingController(
+      text: gasto != null ? gasto.descripcion : '',
+    );
+    final montoController = TextEditingController(
+      text: gasto != null ? gasto.monto.toString() : '',
+    );
+    int? selectedCategoriaId =
+        gasto?.categoriaId ?? _categorias.firstOrDefault()?.id;
+    DateTime? selectedDateLocal = gasto?.fecha ?? selectedDate;
 
-  showDialog(
-    context: context,
-    builder: (dialogContext) { // Cambiamos el nombre del contexto para evitar confusiones
-      return StatefulBuilder( // Añadimos StatefulBuilder para manejar estado interno
-        builder: (context, setDialogState) {
-          return AlertDialog(
-            title: Text(gasto == null ? 'Nuevo Gasto' : 'Editar Gasto'),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  TextField(
-                    controller: descripcionController,
-                    decoration: const InputDecoration(labelText: 'Descripción'),
-                  ),
-                  TextField(
-                    controller: montoController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Monto'),
-                  ),
-                  DropdownButtonFormField<int>(
-                    value: selectedCategoriaId,
-                    decoration: const InputDecoration(labelText: 'Categoría'),
-                    items: _categorias.map((cat) {
-                      return DropdownMenuItem(
-                        value: cat.id,
-                        child: Text(cat.nombre),
-                      );
-                    }).toList(),
-                    onChanged: (val) => selectedCategoriaId = val,
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDateLocal ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime.now(),
-                      );
-                      if (picked != null) {
-                        setDialogState(() { // Usamos setDialogState en lugar de setState
-                          selectedDateLocal = picked;
-                        });
-                      }
-                    },
-                    child: Text(
-                      selectedDateLocal == null
-                          ? 'Seleccionar Fecha'
-                          : 'Fecha: ${DateFormat('dd/MM/yyyy').format(selectedDateLocal!)}',
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(gasto == null ? 'Nuevo Gasto' : 'Editar Gasto'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: descripcionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Descripción',
+                      ),
                     ),
-                  ),
-                ],
+                    TextField(
+                      controller: montoController,
+                      decoration: const InputDecoration(labelText: 'Monto'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    DropdownButtonFormField<int>(
+                      value: selectedCategoriaId,
+                      items:
+                          _categorias.map((cat) {
+                            return DropdownMenuItem<int>(
+                              value: cat.id,
+                              child: Text(cat.nombre),
+                            );
+                          }).toList(),
+                      onChanged: (value) {
+                        setDialogState(() {
+                          selectedCategoriaId = value;
+                        });
+                      },
+                      decoration: const InputDecoration(labelText: 'Categoría'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDateLocal ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime.now(),
+                          locale: const Locale('es', 'ES'),
+                        );
+                        if (picked != null) {
+                          setDialogState(() {
+                            selectedDateLocal = picked;
+                          });
+                        }
+                      },
+                      child: Text(
+                        selectedDateLocal == null
+                            ? 'Seleccionar Fecha'
+                            : 'Fecha: ${DateFormat('dd MMMM yyyy', 'es_ES').format(selectedDateLocal!)}', // Formato en español
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final descripcion = descripcionController.text.trim();
-                  final monto = double.tryParse(montoController.text.trim()) ?? 0.0;
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final descripcion = descripcionController.text.trim();
+                    final monto =
+                        double.tryParse(montoController.text.trim()) ?? 0.0;
 
-                  if (descripcion.isEmpty || selectedCategoriaId == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Complete todos los campos')),
+                    if (descripcion.isEmpty || selectedCategoriaId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Complete todos los campos'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (monto <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('El monto debe ser mayor a cero'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final fechaSeleccionada =
+                        selectedDateLocal ?? DateTime.now();
+                    if (!_esFechaValida(fechaSeleccionada)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('No puede seleccionar fechas futuras'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final nuevo = Gasto(
+                      id: DateTime.now().millisecondsSinceEpoch,
+                      descripcion: descripcion,
+                      monto: monto,
+                      categoriaId: selectedCategoriaId!,
+                      fecha: fechaSeleccionada,
                     );
-                    return;
-                  }
 
-                  if (monto <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('El monto debe ser mayor a cero')),
+                    _gastos.add(nuevo);
+                    await _storage.guardarGastos(_gastos);
+
+                    final homeProvider = Provider.of<HomeProvider>(
+                      context,
+                      listen: false,
                     );
-                    return;
-                  }
+                    await homeProvider.addGasto(nuevo);
 
-                  final fechaSeleccionada = selectedDateLocal ?? DateTime.now();
-                  if (!_esFechaValida(fechaSeleccionada)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No puede seleccionar fechas futuras')),
-                    );
-                    return;
-                  }
-
-                  final nuevo = Gasto(
-                    id: DateTime.now().millisecondsSinceEpoch,
-                    descripcion: descripcion,
-                    monto: monto,
-                    categoriaId: selectedCategoriaId!,
-                    fecha: fechaSeleccionada,
-                  );
-
-                  _gastos.add(nuevo);
-                  await _storage.guardarGastos(_gastos);
-                  
-                  final homeProvider = Provider.of<HomeProvider>(context, listen: false);
-                  await homeProvider.addGasto(nuevo);
-                  
-                  Navigator.of(dialogContext).pop();
-                  setState(() {});
-                },
-                child: const Text('Guardar'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
+                    Navigator.of(dialogContext).pop();
+                    setState(() {});
+                  },
+                  child: const Text('Guardar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   void _eliminarGasto(int id) async {
     setState(() {
@@ -197,7 +222,9 @@ void _mostrarModal({Gasto? gasto}) {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${gasto.monto.toStringAsFixed(2)} - ${_nombreCategoria(gasto.categoriaId)}'),
+                Text(
+                  '${gasto.monto.toStringAsFixed(2)} - ${_nombreCategoria(gasto.categoriaId)}',
+                ),
                 Text(
                   'Fecha: ${DateFormat('dd/MM/yyyy').format(gasto.fecha)}',
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),

@@ -37,7 +37,9 @@ class _CategoriasPageState extends State<CategoriasPage> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: Text(categoria == null ? 'Nueva Categoría' : 'Editar Categoría'),
+          title: Text(
+            categoria == null ? 'Nueva Categoría' : 'Editar Categoría',
+          ),
           content: TextField(
             controller: nombreController,
             decoration: const InputDecoration(labelText: 'Nombre de categoría'),
@@ -59,7 +61,9 @@ class _CategoriasPageState extends State<CategoriasPage> {
                   );
                   _categorias.add(nueva);
                 } else {
-                  final index = _categorias.indexWhere((c) => c.id == categoria.id);
+                  final index = _categorias.indexWhere(
+                    (c) => c.id == categoria.id,
+                  );
                   if (index != -1) {
                     _categorias[index] = Categoria(
                       id: categoria.id,
@@ -69,9 +73,12 @@ class _CategoriasPageState extends State<CategoriasPage> {
                 }
 
                 await _storage.guardarCategorias(_categorias);
-                final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+                final homeProvider = Provider.of<HomeProvider>(
+                  context,
+                  listen: false,
+                );
                 await homeProvider.loadData();
-                
+
                 setState(() {});
                 Navigator.of(context).pop();
               },

@@ -33,11 +33,15 @@ class HomeProvider extends ChangeNotifier {
     final currentMonth = DateTime(now.year, now.month);
 
     for (var categoria in _categorias) {
-      final gastosCategoria = _gastos.where((g) => 
-        g.categoriaId == categoria.id && 
-        DateTime(g.fecha.year, g.fecha.month) == currentMonth
+      final gastosCategoria = _gastos.where(
+        (g) =>
+            g.categoriaId == categoria.id &&
+            DateTime(g.fecha.year, g.fecha.month) == currentMonth,
       );
-      resumen[categoria.nombre] = gastosCategoria.fold(0.0, (sum, g) => sum + g.monto);
+      resumen[categoria.nombre] = gastosCategoria.fold(
+        0.0,
+        (sum, g) => sum + g.monto,
+      );
     }
     return resumen;
   }
@@ -105,7 +109,9 @@ class HomePage extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 10),
-                          ...resumen.entries.map((e) => _buildCategoryRow(e.key, e.value)),
+                          ...resumen.entries.map(
+                            (e) => _buildCategoryRow(e.key, e.value),
+                          ),
                           const Divider(),
                           _buildTotalRow('Total del mes', totalMes),
                         ],
@@ -119,18 +125,24 @@ class HomePage extends StatelessWidget {
                       ElevatedButton.icon(
                         icon: const Icon(Icons.category),
                         label: const Text('Categorías'),
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const CategoriasPage()),
-                        ),
+                        onPressed:
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const CategoriasPage(),
+                              ),
+                            ),
                       ),
                       ElevatedButton.icon(
                         icon: const Icon(Icons.money),
                         label: const Text('Gastos'),
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const GastosPage()),
-                        ),
+                        onPressed:
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const GastosPage(),
+                              ),
+                            ),
                       ),
                     ],
                   ),
@@ -151,37 +163,39 @@ class HomePage extends StatelessWidget {
       builder: (context, constraints) {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
-          children: entries.map((e) {
-            final double height = maxValue > 0 
-              ? (e.value / maxValue) * constraints.maxHeight * 0.8 
-              : 0.0;
-            
-            return Flexible(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    height: height,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+          children:
+              entries.map((e) {
+                final double height =
+                    maxValue > 0
+                        ? (e.value / maxValue) * constraints.maxHeight * 0.8
+                        : 0.0;
+
+                return Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        height: height,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        e.key.substring(0, 3),
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                      Text(
+                        '\$${e.value.toStringAsFixed(0)}',
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    e.key.substring(0, 3),
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  Text(
-                    '\$${e.value.toStringAsFixed(0)}',
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
         );
       },
     );
@@ -212,10 +226,7 @@ class HomePage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           Text(
             '\$${total.toStringAsFixed(2)}',
             style: const TextStyle(
