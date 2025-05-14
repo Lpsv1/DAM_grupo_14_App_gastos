@@ -6,6 +6,7 @@ import 'gastos_page.dart';
 import '../models/gasto.dart';
 import '../models/categoria.dart';
 import '../services/local_storage.dart';
+import 'package:intl/date_symbol_data_local.dart'; 
 
 class HomeProvider extends ChangeNotifier {
   final LocalStorageService _storage = LocalStorageService();
@@ -56,6 +57,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Inicializa los formatos de fecha en español
+    initializeDateFormatting('es_ES', null);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mi App de Finanzas'),
@@ -85,7 +89,7 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                            'Gastos del Mes (${DateFormat('MMMM yyyy').format(now)})',
+                            'Gastos de ${DateFormat('MMMM yyyy', 'es_ES').format(now)}',
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 20),
