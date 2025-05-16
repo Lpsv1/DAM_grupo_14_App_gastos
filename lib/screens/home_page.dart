@@ -7,6 +7,7 @@ import '../models/gasto.dart';
 import '../models/categoria.dart';
 import '../services/local_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'animated_refreshbutton.dart';
 
 class HomeProvider extends ChangeNotifier {
   final LocalStorageService _storage = LocalStorageService();
@@ -62,10 +63,32 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Control de Gastos Personales'),
+        title: const Text(
+          'GASTOS PERSONALES',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+            fontFamily: 'Courier New',
+          ),
+          textAlign: TextAlign.center,
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF3F0563), // Morado
+                Color(0xFF515FC9), // Azul
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
+          AnimatedRefreshButton(
             onPressed: () => context.read<HomeProvider>().loadData(),
           ),
         ],
