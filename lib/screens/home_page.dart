@@ -6,7 +6,7 @@ import 'gastos_page.dart';
 import '../models/gasto.dart';
 import '../models/categoria.dart';
 import '../services/local_storage.dart';
-import 'package:intl/date_symbol_data_local.dart'; 
+import 'package:intl/date_symbol_data_local.dart';
 
 class HomeProvider extends ChangeNotifier {
   final LocalStorageService _storage = LocalStorageService();
@@ -62,7 +62,7 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi App de Finanzas'),
+        title: const Text('Control de Gastos Personales'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
