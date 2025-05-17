@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'screens/home_page.dart';
 import 'services/local_storage.dart';
+import 'screens/SpSc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,7 +29,11 @@ class MyApp extends StatelessWidget {
           Locale('es', 'ES'), // Español
         ],
         theme: ThemeData(primarySwatch: Colors.teal),
-        home: const HomePage(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const SplashScreen(),
+          '/home': (context) => const HomePage(),
+        },
         debugShowCheckedModeBanner: false,
       ),
     );
